@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import warnings
-
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.test import TestCase
@@ -10,7 +8,6 @@ from guardian.shortcuts import get_perms_for_model
 from guardian.core import ObjectPermissionChecker
 from guardian.compat import get_user_model
 from guardian.compat import get_user_permission_full_codename
-from guardian.shortcuts import assign
 from guardian.shortcuts import assign_perm
 from guardian.shortcuts import remove_perm
 from guardian.shortcuts import get_perms
@@ -83,13 +80,6 @@ class AssignPermTest(ObjectPermissionTestCase):
 
         self.assertTrue(self.user.has_perm("contenttypes.change_contenttype"))
         self.assertTrue(isinstance(perm, Permission))
-
-    def test_deprecation_warning(self):
-        with warnings.catch_warnings(record=True) as warns:
-            warnings.simplefilter('always')
-            assign("contenttypes.change_contenttype", self.group)
-            self.assertEqual(len(warns), 1)
-            self.assertTrue(isinstance(warns[0].message, DeprecationWarning))
 
 
 class RemovePermTest(ObjectPermissionTestCase):
@@ -527,6 +517,21 @@ class GetObjectsForUser(TestCase):
 
         objects = get_objects_for_user(self.user, ['auth.change_group',
             'auth.delete_group'])
+        self.assertEqual(len(objects), 1)
+        self.assertTrue(isinstance(objects, QuerySet))
+        self.assertEqual(
+            set(objects.values_list('name', flat=True)),
+            set([groups[1].name]))
+
+    def test_multiple_perms_to_check_no_groups(self):
+        group_names = ['group1', 'group2', 'group3']
+        groups = [Group.objects.create(name=name) for name in group_names]
+        for group in groups:
+            assign_perm('auth.change_group', self.user, group)
+        assign_perm('auth.delete_group', self.user, groups[1])
+
+        objects = get_objects_for_user(self.user, ['auth.change_group',
+            'auth.delete_group'], use_groups=False)
         self.assertEqual(len(objects), 1)
         self.assertTrue(isinstance(objects, QuerySet))
         self.assertEqual(
