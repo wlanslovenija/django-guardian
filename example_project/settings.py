@@ -36,9 +36,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'guardian',
     'guardian.testapp',
-    'posts',
-    'core',
-    'integration_tests',
+    'example_project.posts',
+    'example_project.core',
+    'example_project.integration_tests',
 )
 
 if 'GUARDIAN_NO_TESTS_APP' in os.environ:
