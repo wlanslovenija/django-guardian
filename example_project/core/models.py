@@ -1,9 +1,9 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from guardian.testapp.models import CustomUser as BaseCustomUser
 import datetime
 
 
-class CustomUser(AbstractUser):
+class CustomUser(BaseCustomUser):
     real_username = models.CharField(max_length=120, unique=True)
     birth_date = models.DateField(null=True, blank=True)
 
