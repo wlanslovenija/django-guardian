@@ -40,10 +40,6 @@ INSTALLED_APPS = (
     'core',
     'integration_tests',
 )
-if django.VERSION < (1, 3):
-    INSTALLED_APPS += ('staticfiles',)
-else:
-    INSTALLED_APPS += ('django.contrib.staticfiles',)
 
 if 'GUARDIAN_NO_TESTS_APP' in os.environ:
     _apps = list(INSTALLED_APPS)
